@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Message Form</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>Submit a Message</h1>
+
+  <form id="messageForm">
+    <label for="messageText">Message:</label>
+    <input type="text" id="messageText" name="messageText" required>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Submitted Messages</h2>
+  <ul id="messageList"></ul>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const messageForm = document.getElementById('messageForm');
+      const messageText = document.getElementById('messageText');
+      const messageList = document.getElementById('messageList');
+
+      messageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const text = messageText.value;
+
+        fetch('http://localhost:3000/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text }),
+        })
+        .then(response => response.json())
+        .then(data => {
+          // Display the submitted message
+          const listItem = document.createElement('li');
+          listItem.textContent = data.text;
+          messageList.appendChild(listItem);
+
+          // Clear the form input
+          messageText.value = '';
+        })
+        .catch(error => console.error('Error:', error));
+      });
+
+      // Fetch and display existing messages on page load
+      fetch('http://localhost:3000/messages')
+        .then(response => response.json())
+        .then(data => {
+          data.forEach(message => {
+            const listItem = document.createElement('li');
+            listItem.textContent = message.text;
+            messageList.appendChild(listItem);
+          });
+        })
+        .catch(error => console.error('Error:', error));
+    });
+  </script>
+
+</body>
+</html>
